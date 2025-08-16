@@ -109,7 +109,7 @@
     /* точки */
     .dots{
       position:absolute; left:0; right:0; bottom:10px;
-      display:flex; gap:8px; justify-content:center; z-index:3;
+      display:flex; gap:8px; justiыy-content:center; z-index:3;
     }
     .dot{
       width:10px; height:10px; border-radius:50%;
@@ -117,6 +117,15 @@
     }
     .dot.active{ background:#7c5cff; border-color:#7c5cff; opacity:1; }
 
+    /* центрируем блок "детали" */
+    .details{
+      max-width: 720px;         /* можно 600–720px или убрать */
+      margin: 18px auto 6px;    /* auto по бокам — центрирует сам блок */
+      text-align: center;       /* центрирует текст внутри */
+    }
+    .details p{
+      margin: 6px 0;
+    }
 
     /* === КАРТА === */
     .map{margin:16px 0 0;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(124,92,255,.20);}
