@@ -48,23 +48,31 @@
     .info .i{background:#fff;border:1px solid #e6e0ff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(124,92,255,.18);display:flex;align-items:center;justify-content:center;text-align:center;min-height:64px;}
     .info .i b{display:block;font-size:1.05rem}.info .i small{display:block;color:var(--muted);margin-top:2px}
 
-        /* === СЛАЙДЕР ФОТО — КРУГ === */
+        /* === СЛАЙДЕР ФОТО — КРУГ (стрелки снаружи, авто) === */
     .gallery{
       position:relative;
       margin:26px auto 6px;
-      width: clamp(240px, 50vw, 440px);
-      aspect-ratio: 1 / 1;             /* всегда квадрат */
-      border-radius: 999px;             /* круг */
-      overflow:hidden;
+      width: clamp(264px, 55vw, 484px); /* +10% от изначального размера */
+      aspect-ratio: 1 / 1;
+      border-radius: 999px;
+      border: 8px solid #fff;            /* рамка оставляем 8 */
       background: linear-gradient(145deg,#e8ddff,#fff);
-      border: 10px solid #fff;          /* «рамка» */
       box-shadow: 0 16px 40px rgba(124,92,255,.28);
+      overflow: visible;                  /* чтобы стрелки были снаружи */
+    }
+    
+    /* внутренняя маска, которая реально обрезает фото по кругу */
+    .gallery .mask{
+      position: relative;
+      width: 100%; height: 100%;
+      border-radius: inherit;
+      overflow: hidden;
     }
     
     .slides{
       display:flex;
       height:100%;
-      transition: transform .45s ease;  /* пролистывание */
+      transition: transform .45s ease;   /* пролистывание */
     }
     
     .slide{
@@ -76,38 +84,39 @@
     
     .slide img{
       width:100%; height:100%;
-      object-fit: cover;                /* фото обрезается по кругу аккуратно */
+      object-fit: cover;                  /* аккуратное заполнение круга */
       display:block;
     }
     
-    /* стрелки на краях круга */
+    /* стрелки — СНАРУЖИ круга и сиреневые */
     .arrow{
       position:absolute; top:50%;
       transform: translateY(-50%);
       z-index:3;
-      width:44px; height:44px;
+      width:48px; height:48px;
       display:grid; place-items:center;
       border:none;
-      background: rgba(255,255,255,.92);
-      border:1px solid #dcd2ff;
+      background: linear-gradient(180deg, #a78bfa, #7c5cff);
+      color:#fff;
       border-radius:50%;
-      box-shadow:0 8px 20px rgba(124,92,255,.25);
-      cursor:pointer; font-weight:800; color:#5b3ea6;
+      box-shadow:0 10px 24px rgba(124,92,255,.35);
+      cursor:pointer; font-weight:800;
     }
-    .arrow.prev{ left:8px; }
-    .arrow.next{ right:8px; }
+    .arrow.prev{ left:-60px; }           /* вынесены за круг */
+    .arrow.next{ right:-60px; }
     .arrow:active{ transform: translateY(-50%) scale(.98); }
     
-    /* точки внутри круга у нижней кромки */
+    /* точки */
     .dots{
       position:absolute; left:0; right:0; bottom:10px;
       display:flex; gap:8px; justify-content:center; z-index:3;
     }
     .dot{
-      width:8px; height:8px; border-radius:50%;
-      background:#cfc6ff; border:1px solid #b9aaff; opacity:.75; cursor:pointer;
+      width:10px; height:10px; border-radius:50%;
+      background:#cfc6ff; border:1px solid #b9aaff; opacity:.8; cursor:pointer;
     }
     .dot.active{ background:#7c5cff; border-color:#7c5cff; opacity:1; }
+
 
     /* === КАРТА === */
     .map{margin:16px 0 0;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(124,92,255,.20);}
@@ -137,9 +146,14 @@
         <div class="gallery" aria-label="Фото именинницы">
           <button class="arrow prev" aria-label="Предыдущее фото">‹</button>
           <button class="arrow next" aria-label="Следующее фото">›</button>
-          <div class="slides" id="slides"></div>
+        
+          <div class="mask">
+            <div class="slides" id="slides"></div>
+          </div>
+        
           <div class="dots" id="dots" aria-hidden="true"></div>
         </div>
+
       </header>
 
       <section class="details">
@@ -190,7 +204,7 @@
 
       const dot = document.createElement('div');
       dot.className = 'dot';
-      dot.addEventListener('click', () => go(idx));
+      dot.addEventListener('click', () => { go(idx); restartAuto(); });
       dotsEl.appendChild(dot);
     });
 
@@ -201,24 +215,44 @@
     }
     function go(i){ current = (i + images.length) % images.length; update(); }
 
-    document.querySelector('.arrow.prev').addEventListener('click', () => go(current-1));
-    document.querySelector('.arrow.next').addEventListener('click', () => go(current+1));
+    document.querySelector('.arrow.prev').addEventListener('click', () => { go(current-1); restartAuto(); });
+    document.querySelector('.arrow.next').addEventListener('click', () => { go(current+1); restartAuto(); });
+
 
     // свайп на мобильных
     let x0=null;
-    slidesEl.addEventListener('touchstart', e=>{ x0 = e.touches[0].clientX; }, {passive:true});
+    slidesEl.addEventListener('touchstart', e=>{ x0 = e.touches[0].clientX; stopAuto(); }, {passive:true});
     slidesEl.addEventListener('touchend', e=>{
       if(x0==null) return;
       const dx = e.changedTouches[0].clientX - x0;
       if(Math.abs(dx) > 40) go(current + (dx<0 ? 1 : -1));
-      x0=null;
-    });
+      x0=null; restartAuto();
+    }, {passive:true});
 
     // стрелки клавиатуры
     window.addEventListener('keydown', e=>{
       if(e.key==='ArrowLeft') go(current-1);
       if(e.key==='ArrowRight') go(current+1);
     });
+
+    // --- АВТОПРОКРУТКА ---
+    const AUTOPLAY_MS = 3500;  // интервал автолистания
+    let timer = null;
+    
+    function startAuto(){
+      stopAuto();
+      if (images.length > 1) timer = setInterval(() => go(current + 1), AUTOPLAY_MS);
+    }
+    function stopAuto(){
+      if (timer){ clearInterval(timer); timer = null; }
+    }
+    function restartAuto(){ stopAuto(); startAuto(); }
+    
+    // пауза при наведении/фокусе и при сворачивании вкладки
+    const galleryEl = document.querySelector('.gallery');
+    ['mouseenter','focusin'].forEach(ev => galleryEl.addEventListener(ev, stopAuto));
+    ['mouseleave','focusout'].forEach(ev => galleryEl.addEventListener(ev, startAuto));
+    document.addEventListener('visibilitychange', () => document.hidden ? stopAuto() : startAuto());
 
     // инициализация
     if(images.length===0){
@@ -227,6 +261,7 @@
       slidesEl.appendChild(s);
     }
     update();
+    startAuto();
   </script>
 </body>
 </html>
