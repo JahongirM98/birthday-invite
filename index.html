@@ -48,19 +48,67 @@
     .info .i{background:#fff;border:1px solid #e6e0ff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(124,92,255,.18);display:flex;align-items:center;justify-content:center;text-align:center;min-height:64px;}
     .info .i b{display:block;font-size:1.05rem}.info .i small{display:block;color:var(--muted);margin-top:2px}
 
-    /* === СЛАЙДЕР ФОТО === */
-    .gallery{position:relative;margin:26px auto 6px;border-radius:16px;overflow:hidden;box-shadow:0 16px 40px rgba(124,92,255,.28);background:linear-gradient(145deg,#e8ddff,#fff);height:clamp(220px,45vw,380px);}
-    .slides{display:flex;height:100%;transition:transform .45s ease;}
-    .slide{min-width:100%;height:100%;background:linear-gradient(145deg,#efeaff,#fff);display:grid;place-items:center;}
-    .slide img{width:100%;height:100%;object-fit:cover;display:block;}
-    .arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;border:none;background:#fff;border:1px solid #dcd2ff;border-radius:12px;padding:10px 14px;box-shadow:0 8px 20px rgba(124,92,255,.25);cursor:pointer;font-weight:800;color:#5b3ea6;}
-    .arrow:active{transform:translateY(-50%) scale(.98)}
-    .arrow.prev{left:10px} .arrow.next{right:10px}
-    .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:8px;justify-content:center;z-index:3}
-    .dot{width:8px;height:8px;border-radius:50%;background:#cfc6ff;border:1px solid #b9aaff;opacity:.7;cursor:pointer}
-    .dot.active{background:#7c5cff;border-color:#7c5cff;opacity:1}
+        /* === СЛАЙДЕР ФОТО — КРУГ === */
+    .gallery{
+      position:relative;
+      margin:26px auto 6px;
+      width: clamp(240px, 50vw, 440px);
+      aspect-ratio: 1 / 1;             /* всегда квадрат */
+      border-radius: 999px;             /* круг */
+      overflow:hidden;
+      background: linear-gradient(145deg,#e8ddff,#fff);
+      border: 10px solid #fff;          /* «рамка» */
+      box-shadow: 0 16px 40px rgba(124,92,255,.28);
+    }
+    
+    .slides{
+      display:flex;
+      height:100%;
+      transition: transform .45s ease;  /* пролистывание */
+    }
+    
+    .slide{
+      min-width:100%;
+      height:100%;
+      background: radial-gradient(circle at 30% 30%, #f1ecff 0 40%, transparent 41%);
+      display:grid; place-items:center;
+    }
+    
+    .slide img{
+      width:100%; height:100%;
+      object-fit: cover;                /* фото обрезается по кругу аккуратно */
+      display:block;
+    }
+    
+    /* стрелки на краях круга */
+    .arrow{
+      position:absolute; top:50%;
+      transform: translateY(-50%);
+      z-index:3;
+      width:44px; height:44px;
+      display:grid; place-items:center;
+      border:none;
+      background: rgba(255,255,255,.92);
+      border:1px solid #dcd2ff;
+      border-radius:50%;
+      box-shadow:0 8px 20px rgba(124,92,255,.25);
+      cursor:pointer; font-weight:800; color:#5b3ea6;
+    }
+    .arrow.prev{ left:8px; }
+    .arrow.next{ right:8px; }
+    .arrow:active{ transform: translateY(-50%) scale(.98); }
+    
+    /* точки внутри круга у нижней кромки */
+    .dots{
+      position:absolute; left:0; right:0; bottom:10px;
+      display:flex; gap:8px; justify-content:center; z-index:3;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background:#cfc6ff; border:1px solid #b9aaff; opacity:.75; cursor:pointer;
+    }
+    .dot.active{ background:#7c5cff; border-color:#7c5cff; opacity:1; }
 
-    .details{text-align:center;color:var(--muted);font-size:clamp(16px,2.6vw,18px);margin:18px 0 6px;}
     /* === КАРТА === */
     .map{margin:16px 0 0;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(124,92,255,.20);}
     .map iframe{width:100%;height:360px;border:0}
@@ -96,13 +144,13 @@
 
       <section class="details">
         <p>✨ Тема: cиренево-белая сказка — воздушные шары, цветы и радость</p>
-        <p>🌸 Дресс-код: дресс-код сиреневый и белый (по желанию) </p>
+        <p>🌸 Дресс-код: сиреневый и белый (по желанию) </p>
       </section>
 
       <!-- === ВСТРОЕННАЯ КАРТА GOOGLE === -->
       <div class="map">
         <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=%D0%A5%D1%83%D0%B4%D0%B6%D0%B0%D0%BD%D0%B4%2C%20%D1%83%D0%BB.%20%D0%9C%D0%B8%D1%80%D1%85%D0%BE%D0%BB%D0%B8%D0%BA%D0%BE%D0%B2%20%D0%A2.%2C%2074&hl=ru&z=17&output=embed">
+          src="https://www.google.com/maps?q=40.27165,69.64643&hl=ru&z=18&output=embed">
         </iframe>
       </div>
 
